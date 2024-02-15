@@ -1,7 +1,7 @@
 import numpy as np
 import nltk
 # For the first time running the program please uncomment below line
-# nltk.download('punkt')
+nltk.download('punkt')
 from nltk.stem.porter import PorterStemmer
 stemmer = PorterStemmer()
 

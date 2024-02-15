@@ -1,13 +1,15 @@
-import random
-import json
-
+from flask import Flask, render_template, request, jsonify
 import torch
-
+import json
+import random
 from model import NeuralNet
 from nltk_utils import bag_of_words, tokenize
 
+app = Flask(__name__)
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+# Load data and model
 with open('intents.json', 'r') as json_data:
     intents = json.load(json_data)
 
@@ -26,15 +28,20 @@ model.load_state_dict(model_state)
 model.eval()
 
 bot_name = "ReceptionBot"
-print("Welcome to Our Hotel. I am your AI receptionist bot. Let's chat! (type 'quit' to exit)")
-flag = 0
-while True:
-    sentence = input("You: ")
-    if sentence == "quit":
-        break
 
-    sentence = tokenize(sentence)
-    X = bag_of_words(sentence, all_words)
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process', methods=['POST'])
+def process():
+    user_input = request.form['user_input']
+    
+    if user_input == "quit":
+        return jsonify({'bot_response': 'Goodbye!'})
+
+    user_input = tokenize(user_input)
+    X = bag_of_words(user_input, all_words)
     X = X.reshape(1, X.shape[0])
     X = torch.from_numpy(X).to(device)
 
@@ -46,13 +53,12 @@ while True:
     probs = torch.softmax(output, dim=1)
     prob = probs[0][predicted.item()]
     if prob.item() > 0.75:
-        flag = 0
         for intent in intents['intents']:
             if tag == intent["tag"]:
-                print(f"{bot_name}: {random.choice(intent['responses'])}")
+                response = random.choice(intent['responses'])
+                return jsonify({'bot_response': f'{bot_name}: {response}'})
     else:
-        print(f"{bot_name}: I do not understand...")
-        flag = flag + 1
-        if flag == 3:
-            print("Please try to Contact us:\n Tel: +8802985910454\n Email: info@grandhotel.com")
-            flag = 0
+        return jsonify({'bot_response': f'{bot_name}: I do not understand...'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0',debug=True)

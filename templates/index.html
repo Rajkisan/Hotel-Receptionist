@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #chat-container {
+            max-width: 400px;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            overflow-y: auto;
+            height: 300px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Our Hotel</h1>
+    <div id="chat-container"></div>
+    
+    <div>
+        <button id="listenButton" onclick="toggleListening()">Start Listening</button>
+    </div>
+
+    <script>
+        let recognition;
+        let chatContainer = document.getElementById('chat-container');
+        let isListening = false;
+        let fullCommand = "";
+        const SILENCE_TIMEOUT = 2000;  // 2 seconds of silence will trigger recognition stop
+        let silenceTimer;
+
+        function toggleListening() {
+            if (!isListening) {
+                startListening();
+                document.getElementById('listenButton').innerText = 'Stop Listening';
+            } else {
+                stopListening();
+                document.getElementById('listenButton').innerText = 'Start Listening';
+            }
+            isListening = !isListening;
+        }
+
+        function startListening() {
+            recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[event.results.length - 1][0].transcript;
+                fullCommand = transcript + ' ';
+                document.getElementById('chat-container').innerHTML = `<p>You (Voice): ${fullCommand.trim()}</p>`;
+                resetSilenceTimer();
+            };
+
+            recognition.onerror = function (event) {
+                console.error('Speech recognition error:', event.error);
+                resetSilenceTimer();
+            };
+
+            recognition.onend = function () {
+                console.log('Speech recognition ended');
+                if (isListening) {
+                    startListening(); // Restart listening if it was stopped unexpectedly
+                } else {
+                    sendFullCommand();
+                }
+            };
+
+            resetSilenceTimer();
+            recognition.start();
+        }
+
+        function stopListening() {
+            if (recognition) {
+                recognition.stop();
+                clearTimeout(silenceTimer);
+            }
+        }
+
+        function resetSilenceTimer() {
+            clearTimeout(silenceTimer);
+            silenceTimer = setTimeout(function() {
+                console.log('No voice input for a while. Stopping recognition.');
+                stopListening();
+                sendFullCommand();
+            }, SILENCE_TIMEOUT);
+        }
+
+        function sendFullCommand() {
+            if (fullCommand.trim() !== "") {
+                console.log("Sending full command:", fullCommand.trim());
+                fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `user_input=${fullCommand.trim()}`,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display both user's command and bot's response with newlines
+                    const botResponseWithNewlines = data.bot_response.replace(/\n/g, '<br>');
+                    chatContainer.innerHTML += `<p>ReceptionBot: ${botResponseWithNewlines}</p>`;
+                });
+
+                fullCommand = "";
+            }
+        }
+    </script>
+</body>
+</html>

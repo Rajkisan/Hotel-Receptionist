@@ -12,7 +12,7 @@
       ],
       "responses": [
         "Hey",
-        "Hello, thanks for visiting",
+        "Hello, What can I do for you?",
         "Hi there, what can I do for you?",
         "Hi there, how can I help?"
       ]
@@ -35,14 +35,20 @@
       "tag": "payments",
       "patterns": [
         "Do you take credit cards?",
+        "Do you accept credit cards?",
+        "Do you take mastercard?",
         "Do you accept Mastercard?",
         "Mobile banking payment system available?",
-        "Do you accept bkash?",
-        "Are you cash only?"
+        "Do you accept cash?",
+        "Do you accept UPI payments?",
+        "Do you accept Gpay?",
+        "Do you accept Paytm?",
+        "Do you accept PhonePe"
       ],
       "responses": [
         "We accept cash, VISA, Mastercard and bkash",
-        "We accept cash, most major credit/debit cards and bkash"
+        "We accept cash, most major credit/debit cards and bkash",
+        "We accept all kind of UPI payments, use the QR code displayed"
       ]
     },
     {
@@ -51,12 +57,12 @@
         "Is there any room available?",
         "Can I get a room?",
         "I want to book a room?",
-        "How many room available?",
-        "How to book rooms?"
+        "I would like to book some rooms in your hotel, help me with some information",
+        "I would like to book a room, can i know the types of rooms available"
       ],
       "responses": [
-        "Rooms are available throughout the month. You can book rooms by either calling or directly coming to our reception.",
-        "Sure, come to our reception or call to book rooms."
+        "Yes, we have 3 types of rooms.\n\n Rooms with single beds, \n Rooms with double beds, \n Rooms with Queen sized beds, \n if you want extra cottages, we can provide that as well with extra charges,\n If you want rooms for family, we have options for that too, \n all the price details are listed in the display, You can check with them "
+    
       ]
     },
     {
@@ -127,9 +133,19 @@
         "Any offer or discount available?"
       ],
       "responses": [
-        "Currently we are providing 20% discount on every rooms",
-        "You will get 20% discount on every rooms"
+        "Currently we are providing 20% discount on every rooms but you have to book within the next 20 minutes",
+        "You will get 20% discount on every rooms but speed up booking rooms within 20 minutes"
       ]
+    },
+    {"tag": "After counting",
+     "responses": [
+        "Your room has been confirmed ,OTP has been sent to your registered mobile number and E mail. Please tell the number or enter it here within 30 seconds "
+     ]
+    },
+    {"tag": "After entering OTP",
+    "responses":[
+      "Wonderful. You will get your Room Passkey through E mail and message. Kindly use it to access your room."
+    ]
     },
     {
       "tag": "contact",
